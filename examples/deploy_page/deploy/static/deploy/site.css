@@ -1,0 +1,22 @@
+.table {
+    margin-bottom: 5px;
+}
+
+.table.fixed {
+    table-layout:fixed;
+}
+
+.table, th {
+    text-align:center;
+}
+
+.td {
+    text-overflow: ellipsis;  
+    overflow: hidden;  
+    white-space: nowrap;
+}
+
+nav {
+    margin-left: 10px;
+}
+

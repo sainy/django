@@ -1,0 +1,53 @@
+{
+  "Instances": {
+    "master": {
+      "Ip": "10.148.252.58", 
+      "FQDN": "ecs-61084571.ecs.ads.autodesk.com", 
+      "Command": "ecsmaker acadci-master -t <Env>", 
+      "Name": "ACADCI-MASTER", 
+      "Id": "61084571"
+    }, 
+    "inc-main": {
+      "Ip": "10.148.165.39", 
+      "FQDN": "ecs-1117809f.ecs.ads.autodesk.com", 
+      "Command": "ecsmaker acadci-inc -mi main -t <Env>", 
+      "Name": "ACADCI-INC-MAIN", 
+      "Id": "1117809f"
+    }
+  }, 
+  "Variables": {
+    "FullBuildAttri": "-j '{\"buildbot_slave\":{\"username\":\"<NodeName>\",\"builder_types\":[\"largetest\"],\"with_gpu\":true,\"root\":\"E:/CI\"}}'", 
+    "SlaveRecipe": "-r 'recipe[acadci_workarounds::ecs_volume_attach]','role[buildbot_slave]'", 
+    "-NodeName": "-N <NodeName>", 
+    "-Pwd": "-P Qwertyuiop0", 
+    "-User": "-x administrator", 
+    "-Env": "-E <Env>", 
+    "sudo": "--sudo --use-sudo-password", 
+    "FQDN": "<Instance.FQDN>", 
+    "MacDeployRecipe": "-r 'recipe[acadci_workarounds::ecs_volume_attach_mac]','role[buildbot_slave]'", 
+    "MasterRecipe": "-r 'recipe[apt]','role[rabbitmq_server]','role[buildbot_master]','role[monitoring]'", 
+    "StorageRecipe": "-r 'role[storage_server]','role[acadci_admin]'", 
+    "Env": "acad_nautilus_staging", 
+    "NodeName": "<Instance.Name>-<Instance.Id>"
+  }, 
+  "DeployCommands": [
+    {
+      "Status": 0, 
+      "Instance": "master", 
+      "Command": "knife bootstrap <FQDN> <-NodeName> <-Env> <-User> <-Pwd> <MasterRecipe> <sudo>", 
+      "Order": 1
+    }, 
+    {
+      "Status": 1, 
+      "Instance": "master", 
+      "Command": "knife bootstrap <FQDN> <-NodeName> <-Env> <-User> <-Pwd> <MasterRecipe> <sudo>", 
+      "Order": 5
+    }, 
+    {
+      "Status": 1, 
+      "Instance": "inc-main", 
+      "Command": "knife bootstrap windows winrm <FQDN> <-NodeName> <-Env> <-User> <-Pwd> <SlaveRecipe> -j '{\"buildbot_slave\":{\"username\":\"<NodeName>\",\"builder_types\":[\"incbuild\"],\"root\":\"E:/CI\",\"branches\":[\"$/AutoCAD/main\"]}}'", 
+      "Order": 3
+    }
+  ]
+}
